@@ -7,7 +7,7 @@ import Chess
 import Control.Applicative
 import Data.Attoparsec.ByteString.Char8
 import Data.ByteString.Char8 (pack, unpack, ByteString)
-import Data.Map (fromList, (!))
+import Data.Map (fromList, (!), Map)
 
 type Move = String
 
@@ -17,7 +17,7 @@ data PGN = PGN { event :: String
                , round :: String
                , whitePlayer :: String
                , blackPlayer :: String
-               , tags :: [(String, String)]
+               , tags :: Map String String
                , result :: Maybe GameResult
                , initialPosition :: Maybe Board
                , moves :: [Move]
@@ -32,7 +32,7 @@ pgnParser = many gameParse
 
 gameParse =
   let requiredTags = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
-      processTags tagTups = do
+      processTags tagTups = fromList $ do
         (tag, val) <- (tagTups :: [(ByteString, ByteString)])
         if elem tag requiredTags then [] else return (unpack tag, unpack val)
   in do
